@@ -13,7 +13,8 @@ var gl;
 // we keep all local parameters for the program in a single object
 var ctx = {
     shaderProgram: -1,
-    aVertexPositionId: -1
+    aVertexPositionId: -1,
+    aUniformColor: -1
     // add local parameters for attributes and uniforms here
 };
 
@@ -58,6 +59,7 @@ function setUpAttributesAndUniforms(){
     // Shader Programm wurde oben mit Vertex und Fragment geladen
     // Linking auf die VertexPositions Variable im Vertexshader!
     ctx.aVertexPositionId = gl.getAttribLocation(ctx.shaderProgram, "aVertexPosition");
+    ctx.aUniformColor = gl.getUniformLocation(ctx.shaderProgram, "u_color");
 }
 
 /**
@@ -111,6 +113,8 @@ function draw() {
     gl.vertexAttribPointer(ctx.aVertexPositionId, 2, gl.FLOAT, false, 0, 0);
 
     gl.enableVertexAttribArray(ctx.aVertexPositionId);
+
+    gl.uniform4fv(ctx.aUniformColor, [0.0, 1.0, 0.0, 1.0]);
 
     //Gibt an wie es gezeichnet wird
     //Ungefuellt
