@@ -22,7 +22,8 @@ var ctx = {
 // Alle Parameter der Objekte!
 var rectangleObject = {
     buffer: -1,
-    colorBuffer: -1
+    colorBuffer: -1,
+    textureBuffer: -1
 };
 
 var rectangleObject2= {
@@ -41,7 +42,7 @@ function startup() {
     var canvas = document.getElementById("myCanvas");
     gl = createGLContext(canvas);
     initGL();
-    draw();
+    loadTexture("lena512.png");
 }
 
 /**
@@ -68,8 +69,11 @@ function setUpAttributesAndUniforms(){
     // Shader Programm wurde oben mit Vertex und Fragment geladen
     // Linking auf die VertexPositions Variable im Vertexshader!
     ctx.aVertexPositionId = gl.getAttribLocation(ctx.shaderProgram, "aVertexPosition");
-    ctx.aColorId = gl.getAttribLocation(ctx.shaderProgram, "aColor");
+    ctx.aVertexColorId = gl.getAttribLocation(ctx.shaderProgram, "aVertexColor");
+    ctx.aVertexTextureId = gl.getAttribLocation(ctx.shaderProgram, "aVertexTextureCoord");
+
     ctx.uColorId = gl.getUniformLocation(ctx.shaderProgram, "u_color");
+    ctx.uSample2DId = gl.getUniformLocation(ctx.shaderProgram, "uSampler");
 }
 
 function setUpFirstRectangle(){
@@ -88,10 +92,10 @@ function setUpFirstRectangle(){
 
     //Mit Fuellung
     var vertices = [
-        -0.1,-0.5,
-        -0.1, 0.5,
+        -0.5,-0.5,
+        -0.5, 0.8,
         0.8,-0.5,
-        0.8,0.5
+        0.8,0.8
     ]
 
     //Binden des Buffers
@@ -112,10 +116,17 @@ function setUpFirstRectangle(){
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
+
     var textureCoord = [
-        
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
     ]
 
+    rectangleObject.textureBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.textureBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoord), gl.STATIC_DRAW);
 }
 
 /**
@@ -181,8 +192,17 @@ function draw() {
     gl.enableVertexAttribArray(ctx.aVertexPositionId);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
-    gl.vertexAttribPointer(ctx.aColorId, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aColorId);
+    gl.vertexAttribPointer(ctx.aVertexColorId, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(ctx.aVertexColorId);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.textureBuffer);
+    gl.vertexAttribPointer(ctx.aVertexTextureId, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(ctx.aVertexTextureId);
+
+    // Setzen der Texture0
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, lennaTxt.textureObj);
+    gl.uniform1i(ctx.uSample2DId, 0);
 
     //gl.uniform4fv(ctx.uColorId, [0.0, 1.0, 0.0, 1.0]);
 
@@ -192,4 +212,6 @@ function draw() {
 
     //Gefuellt
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
 }
