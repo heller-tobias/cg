@@ -159,14 +159,29 @@ function draw() {
     mat3.fromScaling ( projectionMat , [2.0/ gl.drawingBufferWidth , 2.0/ gl.drawingBufferHeight ]) ;
     gl.uniformMatrix3fv ( ctx.uProjectionMatId , false , projectionMat ) ;
 
+    //Ball
     var modelMat = mat3.create () ;
-    modelMat = mat3.fromValues(1,0,0,0,1,0,0,0,1);
+    mat3.translate(modelMat,modelMat, vec2.fromValues(-100, -200));
+    mat3.scale(modelMat,modelMat, vec2.fromValues(0.2, 0.2));
     drawWithTransformation(modelMat);
 
-    var modelMat2 = mat3.create () ;
-    mat3.translate(modelMat2, modelMat2, vec2.fromValues(100, 200));
-    //mat3.scale(modelMat, modelMat, vec2.fromValues(0.5, 0.5));
-    drawWithTransformation(modelMat2);
+    //Player left
+    var modelMat = mat3.create () ;
+    mat3.translate(modelMat,modelMat, vec2.fromValues(-350, -200));
+    mat3.scale(modelMat, modelMat, vec2.fromValues(0.1, 1));
+    drawWithTransformation(modelMat);
+
+    //Player right
+    var modelMat = mat3.create () ;
+    mat3.translate(modelMat,modelMat, vec2.fromValues(350, 150));
+    mat3.scale(modelMat, modelMat, vec2.fromValues(0.1, 1));
+    drawWithTransformation(modelMat);
+
+    //Center line
+    var modelMat = mat3.create () ;
+    mat3.scale(modelMat, modelMat, vec2.fromValues(0.2, 6));
+    drawWithTransformation(modelMat);
+
     //gl.uniform4fv(ctx.uColorId, [0.0, 1.0, 0.0, 1.0]);
 
     //Gibt an wie es gezeichnet wird
