@@ -22,6 +22,26 @@ var rectangleObject = {
     buffer: -1
 };
 
+var ball= {
+    position: -1,
+    transformation: -1
+};
+
+var player1= {
+    position: -1,
+    transformation: -1
+};
+
+var player2= {
+    position: -1,
+    transformation: -1
+};
+
+var centerline= {
+    position: -1,
+    transformation: -1
+};
+
 /**
  * Startup function to be called when the body is loaded
  */
@@ -69,6 +89,35 @@ function setUpBuffers(){
         -0.5, 0.5];
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+}
+
+function setUpBall() {
+    //Mit Fuellung
+    var vertices = [
+        -50.0,-50.0,
+        -50.0, 50,
+        50.0,-50.0,
+        50.0,50.0
+    ]
+    ball.buffer = gl.createBuffer();
+    //Binden des Buffers
+    // Übergeben der Vertexe an den GL Buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, ball.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+
+    rectangleObject.colorBuffer = gl.createBuffer()
+
+    var colors = [
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+    ]
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
 }
 
 /**
