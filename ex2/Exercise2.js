@@ -78,7 +78,6 @@ function setUpAttributesAndUniforms(){
 
 function setUpFirstRectangle(){
     // add code here to setup the buffers for drawing an object
-    rectangleObject.buffer = gl.createBuffer();
     //Float 32 Array!
 
     //Koordinaten von -1 bis +1
@@ -97,7 +96,7 @@ function setUpFirstRectangle(){
         0.8,-0.5,
         0.8,0.8
     ]
-
+    rectangleObject.buffer = gl.createBuffer();
     //Binden des Buffers
     // Übergeben der Vertexe an den GL Buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
@@ -212,6 +211,4 @@ function draw() {
 
     //Gefuellt
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-
 }

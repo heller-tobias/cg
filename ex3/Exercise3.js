@@ -14,7 +14,9 @@ var gl;
 var ctx = {
     shaderProgram: -1,
     aVertexPositionId: -1,
-    uColorId: -1
+    uColorId: -1,
+    uProjectionMatId: -1,
+    uModelMatId: -1
     // add local parameters for attributes and uniforms here
 };
 
@@ -69,6 +71,9 @@ function setUpAttributesAndUniforms(){
     ctx.aVertexColorId = gl.getAttribLocation(ctx.shaderProgram, "aVertexColor");
 
     ctx.uColorId = gl.getUniformLocation(ctx.shaderProgram, "u_color");
+    ctx.uProjectionMatId = gl.getUniformLocation(ctx.shaderProgram, "uProjectionMat");
+    ctx.uModelMatId = gl.getUniformLocation(ctx.shaderProgram, "uModelMat");
+
 }
 
 function setUpFirstRectangle(){
@@ -86,10 +91,10 @@ function setUpFirstRectangle(){
 
     //Mit Fuellung
     var vertices = [
-        -0.5,-0.5,
-        -0.5, 0.8,
-        0.8,-0.5,
-        0.8,0.8
+        -50.0,-50.0,
+        -50.0, 50,
+        50.0,-50.0,
+        50.0,50.0
     ]
     rectangleObject.buffer = gl.createBuffer();
     //Binden des Buffers
@@ -140,7 +145,14 @@ function draw() {
     gl.vertexAttribPointer(ctx.aVertexColorId, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(ctx.aVertexColorId);
 
+    // Set up the world coordinates
+    var projectionMat = mat3.create () ;
+    mat3.fromScaling ( projectionMat , [2.0/ gl.drawingBufferWidth , 2.0/ gl.drawingBufferHeight ]) ;
+    gl.uniformMatrix3fv ( ctx.uProjectionMatId , false , projectionMat ) ;
 
+    var modelMat = mat3.create () ;
+    mat3.fromValues(1,0,0,0,1,0,0,0,1);
+    gl.uniformMatrix3fv ( ctx.uModelMatId , false , modelMat ) ;
 
     //gl.uniform4fv(ctx.uColorId, [0.0, 1.0, 0.0, 1.0]);
 
