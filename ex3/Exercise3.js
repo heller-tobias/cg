@@ -27,11 +27,17 @@ var rectangleObject = {
     colorBuffer: -1,
 };
 
-var rectangleObject2= {
-    buffer: -1
+var ball= {
+    position: -1
 };
 
+var player1= {
+    position: -1
+};
 
+var player2= {
+    position: -1
+};
 
 /**
  * Startup function to be called when the body is loaded
