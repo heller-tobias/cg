@@ -54,7 +54,7 @@ function initGL() {
     setUpBuffers();
 
     // set the clear color here
-    gl.clearColor(0.5,0.5,0.5,1);
+    gl.clearColor(0.0,0.0,0.0,1);
     
     // add more necessary commands here
 }
@@ -106,10 +106,10 @@ function setUpFirstRectangle(){
     rectangleObject.colorBuffer = gl.createBuffer()
 
     var colors = [
-        1.0, 0.0, 0.0, 1.0,
-        1.0, 0.0, 0.0, 1.0,
-        1.0, 0.0, 0.0, 1.0,
-        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
     ]
 
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
@@ -124,6 +124,15 @@ function setUpBuffers(){
     "use strict";
     setUpFirstRectangle();
 }
+
+function drawWithTransformation(modelMat){
+    gl.uniformMatrix3fv ( ctx.uModelMatId , false , modelMat ) ;
+    //Gefuellt
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+
+
 
 /**
  * Draw the scene.
@@ -151,15 +160,16 @@ function draw() {
     gl.uniformMatrix3fv ( ctx.uProjectionMatId , false , projectionMat ) ;
 
     var modelMat = mat3.create () ;
-    mat3.fromValues(1,0,0,0,1,0,0,0,1);
-    gl.uniformMatrix3fv ( ctx.uModelMatId , false , modelMat ) ;
+    modelMat = mat3.fromValues(1,0,0,0,1,0,0,0,1);
+    drawWithTransformation(modelMat);
 
+    var modelMat2 = mat3.create () ;
+    mat3.translate(modelMat2, modelMat2, vec2.fromValues(100, 200));
+    //mat3.scale(modelMat, modelMat, vec2.fromValues(0.5, 0.5));
+    drawWithTransformation(modelMat2);
     //gl.uniform4fv(ctx.uColorId, [0.0, 1.0, 0.0, 1.0]);
 
     //Gibt an wie es gezeichnet wird
     //Ungefuellt
     //gl.drawArrays(gl.LINE_LOOP, 0, 4);
-
-    //Gefuellt
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }

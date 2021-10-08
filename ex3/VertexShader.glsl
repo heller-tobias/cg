@@ -9,6 +9,6 @@ uniform mat3 uModelMat;
 void main () {
     //Muss immer GL Position auf etwas setzen!
     vColor = aVertexColor;
-    vec3 position = uProjectionMat * uModelMat *  vec3(aVertexPosition, 0);
+    vec3 position = uProjectionMat * (uModelMat *  vec3(aVertexPosition, 1));
     gl_Position = vec4(position, 1);
 }
