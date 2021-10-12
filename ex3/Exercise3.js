@@ -35,7 +35,7 @@ var Direction = {
 }
 
 var ball= {
-    speed: 2,
+    speed: 0.1,
     height: 20,
     width: 20,
     position: -1,
@@ -44,20 +44,22 @@ var ball= {
 };
 
 var player1= {
-    speed: 1,
+    speed: 0.2,
     height: 100,
     width: 20,
     position: -1,
     transformationMat: -1,
+    lives: -1
 };
 
 var player2= {
-    speed: 5,
+    speed: 0.6,
     height: 100,
     width: 20,
     position: -1,
     transformationMat: -1,
-    currentDirection: Direction.UP
+    currentDirection: Direction.UP,
+    lives: -1
 };
 
 var centerLine = {
@@ -121,6 +123,19 @@ function setUpAttributesAndUniforms(){
     ctx.uColorId = gl.getUniformLocation(ctx.shaderProgram, "u_color");
     ctx.uProjectionMatId = gl.getUniformLocation(ctx.shaderProgram, "uProjectionMat");
     ctx.uModelMatId = gl.getUniformLocation(ctx.shaderProgram, "uModelMat");
+}
+
+function random_negative_or_positive_1(){
+    if (Math.round(Math.random()) === 1){
+        return 1;
+    }
+    return -1;
+}
+
+function setUpBall(){
+    ball.position = [-100, -200];
+    ball.direction = [random_negative_or_positive_1(), random_negative_or_positive_1()];
+    console.log("Starting in the following direction: " + ball.direction)
 }
 
 function setBall(){
@@ -188,8 +203,7 @@ function setUpBuffers(){
 }
 
 function setUpObjects(){
-    ball.position = [-100, -200];
-    ball.direction = [-1, -1];
+    setUpBall();
     setBall();
     setUpCenterLine();
     player1.position = [-350, -150]
@@ -204,12 +218,6 @@ function setUpWorldCoordinates(){
     mat3.fromScaling ( projectionMat , [2.0/ gl.drawingBufferWidth , 2.0/ gl.drawingBufferHeight ]) ;
     gl.uniformMatrix3fv ( ctx.uProjectionMatId , false , projectionMat ) ;
 
-}
-
-function drawWithTransformation(modelMat){
-    gl.uniformMatrix3fv ( ctx.uModelMatId , false , modelMat ) ;
-    //Gefuellt
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 function movePlayer1(time_difference){
@@ -267,9 +275,17 @@ function didBallHitPlayer(){
     return hasCollidedLeftPlayer(player1) || hasCollidedRightPlayer(player2);
 }
 
+function didBallHitWallLeft(){
+    return (ball.position[0] - ball.width / 2) <= gameSize.maxLeft;
+}
+
+function didBallHitWallRight() {
+    return (ball.position[0] + ball.width / 2) >= gameSize.maxRight;
+}
 
 function moveBall(time_difference){
-    let movement = [time_difference * ball.speed * ball.direction[0], time_difference * ball.speed * ball.direction[1]]
+    let movement = [time_difference * ball.speed * ball.direction[0], time_difference * ball.speed * ball.direction[1]];
+
     ball.position = [ball.position[0] + movement[0], ball.position[1] + movement[1]]
 
     if(didBallHitBottom() | didBallHitTop()){
@@ -284,12 +300,27 @@ function moveBall(time_difference){
 
 function drawAnimated(timestamp){
     // calculate time since last call
-    time_difference = 1;
+    let time_difference = 1;
+    if(lastUpdate !== -1){
+        time_difference = timestamp - lastUpdate;
+    }
+
+    lastUpdate = timestamp;
+
+    if(didBallHitWallRight()){
+        // increase points player 1
+        setUpBall();
+    }
+
+    if(didBallHitWallLeft()){
+        // increase points player 2
+        setUpBall();
+    }
+
     movePlayer1(time_difference);
     movePlayer2(time_difference);
     moveBall(time_difference);
 
-    //moveBall();
     // move or change objects
     setPlayer1();
     setPlayer2();
@@ -297,46 +328,6 @@ function drawAnimated(timestamp){
     draw();
     // request the next frame
     window.requestAnimationFrame ( drawAnimated ) ;
-}
-
-function drawWithOneAsBasis(){
-    //Binden des Buffers
-    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
-    //Verbindet den aktuellen Buffer mit der Vertexvariable, 2 gibt die Anzahl Komponenten an und float den Datentypen
-    gl.vertexAttribPointer(ctx.aVertexPositionId, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aVertexPositionId);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
-    gl.vertexAttribPointer(ctx.aVertexColorId, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aVertexColorId);
-
-    // Set up the world coordinates
-    var projectionMat = mat3.create () ;
-    mat3.fromScaling ( projectionMat , [2.0/ gl.drawingBufferWidth , 2.0/ gl.drawingBufferHeight ]) ;
-    gl.uniformMatrix3fv ( ctx.uProjectionMatId , false , projectionMat ) ;
-
-    //Ball
-    var modelMat = mat3.create () ;
-    mat3.translate(modelMat,modelMat, vec2.fromValues(-100, -200));
-    mat3.scale(modelMat,modelMat, vec2.fromValues(0.2, 0.2));
-    drawWithTransformation(modelMat);
-
-    //Player left
-    var modelMat = mat3.create () ;
-    mat3.translate(modelMat,modelMat, vec2.fromValues(-350, -200));
-    mat3.scale(modelMat, modelMat, vec2.fromValues(0.1, 1));
-    drawWithTransformation(modelMat);
-
-    //Player right
-    var modelMat = mat3.create () ;
-    mat3.translate(modelMat,modelMat, vec2.fromValues(350, 150));
-    mat3.scale(modelMat, modelMat, vec2.fromValues(0.1, 1));
-    drawWithTransformation(modelMat);
-
-    //Center line
-    var modelMat = mat3.create () ;
-    mat3.scale(modelMat, modelMat, vec2.fromValues(0.2, 6));
-    drawWithTransformation(modelMat);
 }
 
 function drawTransformedRectangle(modelMat){
