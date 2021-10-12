@@ -35,11 +35,12 @@ var Direction = {
 }
 
 var ball= {
-    speed: 1,
+    speed: 2,
     height: 20,
     width: 20,
     position: -1,
     transformationMat: -1,
+    direction: -1
 };
 
 var player1= {
@@ -51,7 +52,7 @@ var player1= {
 };
 
 var player2= {
-    speed: 2,
+    speed: 5,
     height: 100,
     width: 20,
     position: -1,
@@ -122,9 +123,8 @@ function setUpAttributesAndUniforms(){
     ctx.uModelMatId = gl.getUniformLocation(ctx.shaderProgram, "uModelMat");
 }
 
-function setUpBall(){
-    ball.position = [-100, -200]
-    var modelMat = mat3.create () ;
+function setBall(){
+    var modelMat = mat3.create();
     mat3.translate(modelMat,modelMat, vec2.fromValues(ball.position[0], ball.position[1]));
     mat3.scale(modelMat,modelMat, vec2.fromValues(ball.width / rectangleObject.size, ball.height / rectangleObject.size));
     ball.transformationMat = modelMat;
@@ -188,7 +188,9 @@ function setUpBuffers(){
 }
 
 function setUpObjects(){
-    setUpBall();
+    ball.position = [-100, -200];
+    ball.direction = [-1, -1];
+    setBall();
     setUpCenterLine();
     player1.position = [-350, -150]
     setPlayer1();
@@ -233,7 +235,6 @@ function movePlayer2(time_difference){
     }
 }
 
-
 function movePlayer(player, direction, time_difference){
     if(direction == Direction.DOWN){
         player.position = [player.position[0], Math.max(player.position[1] - time_difference * player.speed, gameSize.maxDown + player.height/2)]
@@ -242,16 +243,57 @@ function movePlayer(player, direction, time_difference){
     }
 }
 
+function didBallHitBottom(){
+    return ball.position[1] <= gameSize.maxDown + ball.height/2
+}
+
+function didBallHitTop(){
+    return ball.position[1] >= gameSize.maxUp - ball.height/2
+}
+
+function isWithInHeightOfPlayer(player){
+    return ((ball.position[1] - ball.height / 2) < (player.position[1] + player.height / 2))  && ((ball.position[1] - ball.height / 2) > (player.position[1] - player.height / 2));
+}
+
+function hasCollidedLeftPlayer(player){
+    return ((ball.position[0] - ball.width / 2) < (player.position[0] + player.width / 2)  && (ball.position[0] - ball.width / 2) > (player.position[0] - player.width / 2)) && isWithInHeightOfPlayer(player) ;
+}
+
+function hasCollidedRightPlayer(player){
+    return ((ball.position[0] + ball.width / 2) > (player.position[0] - player.width / 2))  && ((ball.position[0] + ball.width / 2) < (player.position[0] + player.height / 2)) && isWithInHeightOfPlayer(player);
+}
+
+function didBallHitPlayer(){
+    return hasCollidedLeftPlayer(player1) || hasCollidedRightPlayer(player2);
+}
+
+
+function moveBall(time_difference){
+    let movement = [time_difference * ball.speed * ball.direction[0], time_difference * ball.speed * ball.direction[1]]
+    ball.position = [ball.position[0] + movement[0], ball.position[1] + movement[1]]
+
+    if(didBallHitBottom() | didBallHitTop()){
+        ball.direction = [ball.direction[0], ball.direction[1] * (- 1)];
+    }
+
+    if(didBallHitPlayer()){
+        ball.direction = [ball.direction[0] * (- 1), ball.direction[1]];
+    }
+
+}
+
 function drawAnimated(timestamp){
     // calculate time since last call
     time_difference = 1;
     movePlayer1(time_difference);
     movePlayer2(time_difference);
+    moveBall(time_difference);
 
     //moveBall();
     // move or change objects
     setPlayer1();
     setPlayer2();
+    setBall();
     draw();
     // request the next frame
     window.requestAnimationFrame ( drawAnimated ) ;
@@ -329,7 +371,7 @@ function draw() {
     mat3.scale(modelMat, modelMat, vec2.fromValues(100, 50));
     drawTransformedRectangle(modelMat);*/
     for (let i in objects){
-        console.log(objects[i]);
+        //console.log(objects[i]);
         drawTransformedRectangle(objects[i].transformationMat);
     }
 }
