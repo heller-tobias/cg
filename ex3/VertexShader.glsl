@@ -10,5 +10,5 @@ void main () {
     //Muss immer GL Position auf etwas setzen!
     vColor = aVertexColor;
     vec3 position = uProjectionMat * (uModelMat *  vec3(aVertexPosition, 1));
-    gl_Position = vec4(position, 1);
+    gl_Position = vec4(position.xy / position.z, 0, 1);
 }

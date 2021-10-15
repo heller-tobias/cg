@@ -35,7 +35,7 @@ var Direction = {
 }
 
 var ball= {
-    speed: 0.1,
+    speed: 0.2,
     height: 20,
     width: 20,
     position: -1,
@@ -53,7 +53,7 @@ var player1= {
 };
 
 var player2= {
-    speed: 0.6,
+    speed: 0.8,
     height: 100,
     width: 20,
     position: -1,
@@ -105,8 +105,6 @@ function initGL() {
     setUpObjects();
     // set the clear color here
     gl.clearColor(0.0,0.0,0.0,1);
-    
-    // add more necessary commands here
 }
 
 /**
@@ -132,8 +130,15 @@ function random_negative_or_positive_1(){
     return -1;
 }
 
+function random_position(){
+    let random_x = Math.round(Math.random()) * 200 - 100;
+    let random_y = Math.round(Math.random()) * 150 - 75;
+
+    return [random_x, random_y]
+}
+
 function setUpBall(){
-    ball.position = [-100, -200];
+    ball.position = random_position();
     ball.direction = [random_negative_or_positive_1(), random_negative_or_positive_1()];
     console.log("Starting in the following direction: " + ball.direction)
 }
@@ -272,7 +277,7 @@ function hasCollidedRightPlayer(player){
 }
 
 function didBallHitPlayer(){
-    return hasCollidedLeftPlayer(player1) || hasCollidedRightPlayer(player2);
+    return (hasCollidedLeftPlayer(player1) && (ball.direction[0] === -1))  || (hasCollidedRightPlayer(player2) && (ball.direction[0] === 1));
 }
 
 function didBallHitWallLeft(){
@@ -354,15 +359,9 @@ function draw() {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // add drawing routines here
-    //drawWithOneAsBasis();
-    //drawCenterLine();
-    //drawWithOneAsBasis();
-    /*var modelMat = mat3.create () ;
-    mat3.scale(modelMat, modelMat, vec2.fromValues(100, 50));
-    drawTransformedRectangle(modelMat);*/
+
+    // Zeichnen aller Objekte
     for (let i in objects){
-        //console.log(objects[i]);
         drawTransformedRectangle(objects[i].transformationMat);
     }
 }
