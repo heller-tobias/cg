@@ -63,12 +63,13 @@ function setUpAttributesAndUniforms(){
  */
 function setUpBuffers(){
     "use strict";
-    setUpModel();
     setUpProjectionMatrix();
 }
 
-function setUpModel(){
+function setUpModel(timestamp){
     var modelViewMat = mat4.create () ;
+    mat4.lookAt(modelViewMat, [-1.2,-1,0.8], [0,0,0], [0,0,1]);
+
     //1
     //mat4.lookAt(modelViewMat, [0.0,-3,0.0], [0,0,0], [0,0,1]);
 
@@ -87,8 +88,13 @@ function setUpModel(){
     //6
     //mat4.lookAt(modelViewMat, [-1.2,-3,1.5], [0,0,0], [0,0,1]);
 
+    //Exercise 3
+
     //Rotate around
-    mat4.lookAt(modelViewMat, [-1.2,-2,1.5], [0,0,0], [0,0,1]);
+
+    //Rotate around z-axis -> [0,0,1]
+    //Degree in radiant!
+    mat4.rotate(modelViewMat, modelViewMat, timestamp * 0.001, [0.0,0.0,1.0]);
 
     gl.uniformMatrix4fv ( ctx.uModelViewMat , false , modelViewMat ) ;
 }
@@ -99,7 +105,7 @@ function setUpProjectionMatrix(){
     //0.785 = 45°
     //2 -> 160° ca.
     //Exercise 2
-    mat4.perspective(projectionMat, 2.14, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
+    mat4.perspective(projectionMat, 2, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
 
     //Exercise 3
 
@@ -112,6 +118,7 @@ function setUpProjectionMatrix(){
 }
 
 function drawAnimated(timestamp){
+    setUpModel(timestamp);
     // calculate time since last call
     draw();
     // request the next frame
