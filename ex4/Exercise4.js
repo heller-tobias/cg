@@ -69,7 +69,27 @@ function setUpBuffers(){
 
 function setUpModel(){
     var modelViewMat = mat4.create () ;
-    mat4.lookAt(modelViewMat, [-0.8,-2,0.2], [0,0,0], [0,0,1]);
+    //1
+    //mat4.lookAt(modelViewMat, [0.0,-3,0.0], [0,0,0], [0,0,1]);
+
+    //2
+    //mat4.lookAt(modelViewMat, [0.0,-1.5,0.0], [0,0,0], [0,0,1]);
+
+    //3
+    //mat4.lookAt(modelViewMat, [-1,-1,-1], [0,0,0], [0,0,1]);
+
+    //4
+    //mat4.lookAt(modelViewMat, [-0.8,-1.5,0], [0,0,0], [0,0,1]);
+
+    //5 ????
+    //mat4.lookAt(modelViewMat, [0,-1.0,0], [0,0,0], [0,0,1]);
+
+    //6
+    //mat4.lookAt(modelViewMat, [-1.2,-3,1.5], [0,0,0], [0,0,1]);
+
+    //Rotate around
+    mat4.lookAt(modelViewMat, [-1.2,-2,1.5], [0,0,0], [0,0,1]);
+
     gl.uniformMatrix4fv ( ctx.uModelViewMat , false , modelViewMat ) ;
 }
 
@@ -77,7 +97,11 @@ function setUpProjectionMatrix(){
     // Set up the world coordinates
     var projectionMat = mat4.create () ;
     //0.785 = 45°
-    mat4.perspective(projectionMat, 2, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
+    //2 -> 160° ca.
+    //Exercise 2
+    mat4.perspective(projectionMat, 2.14, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
+
+    //Exercise 3
 
     //mat4.frustum(projectionMat, -1, 1, -1, 1, 0.1, 10);
     gl.uniformMatrix4fv ( ctx.uProjectionMatId , false , projectionMat ) ;
