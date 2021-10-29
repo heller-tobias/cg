@@ -85,31 +85,6 @@ function setUpBackfaceCulling() {
 function setUpModel(timestamp){
     var modelViewMat = mat4.create () ;
     mat4.lookAt(modelViewMat, [-1.2,-1,0.8], [0,0,0], [0,0,1]);
-
-    //1
-    //mat4.lookAt(modelViewMat, [0.0,-3,0.0], [0,0,0], [0,0,1]);
-
-    //2
-    //mat4.lookAt(modelViewMat, [0.0,-1.5,0.0], [0,0,0], [0,0,1]);
-
-    //3
-    //mat4.lookAt(modelViewMat, [-1,-1,-1], [0,0,0], [0,0,1]);
-
-    //4
-    //mat4.lookAt(modelViewMat, [-0.8,-1.5,0], [0,0,0], [0,0,1]);
-
-    //5 ????
-    //mat4.lookAt(modelViewMat, [0,-1.0,0], [0,0,0], [0,0,1]);
-
-    //6
-    //mat4.lookAt(modelViewMat, [-1.2,-3,1.5], [0,0,0], [0,0,1]);
-
-    //Exercise 3
-
-    //Rotate around
-
-    //Rotate around z-axis -> [0,0,1]
-    //Degree in radiant!
     mat4.rotate(modelViewMat, modelViewMat, timestamp * 0.001, [0.0,0.0,1.0]);
 
     gl.uniformMatrix4fv ( ctx.uModelViewMat , false , modelViewMat ) ;
@@ -150,7 +125,7 @@ function draw() {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl . clear (gl.COLOR_BUFFER_BIT)
-    let filledCube = new FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0,0,0,1.0]]);
+    let filledCube = new FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0.4,0.4,0.4,1.0]]);
     filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId);
 }
 

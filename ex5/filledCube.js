@@ -71,30 +71,30 @@ function FilledCube ( gl , colors ) {
 
     function defineColors ( gl ) {
         var colorIndices = [
-            colors[0],
-            colors[0],
-            colors[0],
-            colors[0],
-            colors[1],
-            colors[1],
-            colors[1],
-            colors[1],
-            colors[2],
-            colors[2],
-            colors[2],
-            colors[2],
-            colors[3],
-            colors[3],
-            colors[3],
-            colors[3],
-            colors[4],
-            colors[4],
-            colors[4],
-            colors[4],
-            colors[5],
-            colors[5],
-            colors[5],
-            colors[5],
+            colors[0][0], colors[0][1], colors[0][2],  colors[0][3],
+            colors[0][0], colors[0][1], colors[0][2],  colors[0][3],
+            colors[0][0], colors[0][1], colors[0][2],  colors[0][3],
+            colors[0][0], colors[0][1], colors[0][2],  colors[0][3],
+            colors[1][0], colors[1][1], colors[1][2],  colors[1][3],
+            colors[1][0], colors[1][1], colors[1][2],  colors[1][3],
+            colors[1][0], colors[1][1], colors[1][2],  colors[1][3],
+            colors[1][0], colors[1][1], colors[1][2],  colors[1][3],
+            colors[2][0], colors[2][1], colors[2][2],  colors[2][3],
+            colors[2][0], colors[2][1], colors[2][2],  colors[2][3],
+            colors[2][0], colors[2][1], colors[2][2],  colors[2][3],
+            colors[2][0], colors[2][1], colors[2][2],  colors[2][3],
+            colors[3][0], colors[3][1], colors[3][2],  colors[3][3],
+            colors[3][0], colors[3][1], colors[3][2],  colors[3][3],
+            colors[3][0], colors[3][1], colors[3][2],  colors[3][3],
+            colors[3][0], colors[3][1], colors[3][2],  colors[3][3],
+            colors[4][0], colors[4][1], colors[4][2],  colors[4][3],
+            colors[4][0], colors[4][1], colors[4][2],  colors[4][3],
+            colors[4][0], colors[4][1], colors[4][2],  colors[4][3],
+            colors[4][0], colors[4][1], colors[4][2],  colors[4][3],
+            colors[5][0], colors[5][1], colors[5][2],  colors[5][3],
+            colors[5][0], colors[5][1], colors[5][2],  colors[5][3],
+            colors[5][0], colors[5][1], colors[5][2],  colors[5][3],
+            colors[5][0], colors[5][1], colors[5][2],  colors[5][3],
         ];
         var buffer = gl.createBuffer () ;
         gl.bindBuffer ( gl.ARRAY_BUFFER , buffer ) ;
@@ -112,6 +112,7 @@ function FilledCube ( gl , colors ) {
 
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferColors);
+
             gl.vertexAttribPointer(aVertexColorId, 4, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(aVertexColorId);
 
