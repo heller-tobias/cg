@@ -39,6 +39,7 @@ function startup() {
 function initGL() {
     "use strict";
     ctx.shaderProgram = loadAndCompileShaders(gl, 'VertexShader.glsl', 'FragmentShader.glsl');
+    setUpBackfaceCulling();
     setUpAttributesAndUniforms();
     setUpBuffers();
     // set the clear color here
@@ -54,6 +55,8 @@ function setUpAttributesAndUniforms(){
     // Shader Programm wurde oben mit Vertex und Fragment geladen
     // Linking auf die VertexPositions Variable im Vertexshader!
     ctx.aVertexPositionId = gl.getAttribLocation(ctx.shaderProgram, "aVertexPosition");
+    ctx.aVertexColorId = gl.getAttribLocation(ctx.shaderProgram, "aVertexColor");
+
     ctx.uProjectionMatId = gl.getUniformLocation(ctx.shaderProgram, "uProjectionMat");
     ctx.uModelViewMat = gl.getUniformLocation(ctx.shaderProgram, "uModelViewMat");
 }
@@ -65,6 +68,19 @@ function setUpBuffers(){
     "use strict";
     setUpProjectionMatrix();
 }
+
+/**
+ * SetUp Backface Culling.
+ */
+function setUpBackfaceCulling() {
+    gl.frontFace (gl.CCW ) ; // defines how the front face is drawn -> CCW -> Counter Clock Wise!
+    gl.cullFace (gl.BACK ) ; // defines which face should be culled -> Die rückwärtigen Flächen weglassen
+    gl.enable (gl.CULL_FACE ) ; // enables culling
+
+    //gl.enable (gl.DEPTH_TEST) ;
+
+}
+
 
 function setUpModel(timestamp){
     var modelViewMat = mat4.create () ;
@@ -133,9 +149,9 @@ function draw() {
     "use strict";
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    let wiredCube = new WireFrameCube(gl, [1,1,1,0.5]);
-    wiredCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId);
+    gl . clear (gl.COLOR_BUFFER_BIT)
+    let filledCube = new FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0,0,0,1.0]]);
+    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId);
 }
 
 // Key Handling

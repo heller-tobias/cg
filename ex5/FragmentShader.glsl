@@ -10,5 +10,5 @@ uniform vec4 u_color;
 //Berechnung der Pixelfarbe
 void main() {
      // For setting from varying
-     gl_FragColor = vec4(1.0,1.0,1.0,1);
+     gl_FragColor = vColor;
 }

@@ -53,7 +53,7 @@ var player1= {
 };
 
 var player2= {
-    speed: 0.8,
+    speed: 0.4,
     height: 100,
     width: 20,
     position: -1,
