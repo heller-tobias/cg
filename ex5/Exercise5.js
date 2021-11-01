@@ -10,13 +10,18 @@ window.onload = startup;
 // the gl object is saved globally
 var gl;
 
+var filledCube;
+
 // we keep all local parameters for the program in a single object
 var ctx = {
     shaderProgram: -1,
     aVertexPositionId: -1,
     aVertexColorId: -1,
+    aTextureCoordId: -1,
     uProjectionMatId: -1,
-    uModelViewMat: -1
+    uModelViewMat: -1,
+    uSampler: -1,
+    uEnableTexture: -1
     // add local parameters for attributes and uniforms here
 };
 
@@ -42,6 +47,7 @@ function initGL() {
     setUpBackfaceCulling();
     setUpAttributesAndUniforms();
     setUpBuffers();
+    setUpFilledCube();
     // set the clear color here
     gl.clearColor(0.0,0.0,0.0,1);
 }
@@ -56,9 +62,12 @@ function setUpAttributesAndUniforms(){
     // Linking auf die VertexPositions Variable im Vertexshader!
     ctx.aVertexPositionId = gl.getAttribLocation(ctx.shaderProgram, "aVertexPosition");
     ctx.aVertexColorId = gl.getAttribLocation(ctx.shaderProgram, "aVertexColor");
+    ctx.aTextureCoordId = gl.getAttribLocation(ctx.shaderProgram, "aTextureCoord");
 
     ctx.uProjectionMatId = gl.getUniformLocation(ctx.shaderProgram, "uProjectionMat");
     ctx.uModelViewMat = gl.getUniformLocation(ctx.shaderProgram, "uModelViewMat");
+    ctx.uSampler = gl.getUniformLocation(ctx.shaderProgram, "uSampler");
+    ctx.uEnableTexture = gl.getUniformLocation(ctx.shaderProgram, "uEnableTexture");
 }
 
 /**
@@ -67,6 +76,11 @@ function setUpAttributesAndUniforms(){
 function setUpBuffers(){
     "use strict";
     setUpProjectionMatrix();
+}
+
+function setUpFilledCube() {
+    filledCube =  FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0.4,0.4,0.4,1.0]], "lena512.png",);
+
 }
 
 /**
@@ -78,13 +92,12 @@ function setUpBackfaceCulling() {
     gl.enable (gl.CULL_FACE ) ; // enables culling
 
     //gl.enable (gl.DEPTH_TEST) ;
-
 }
 
-
-function setUpModel(timestamp){
+function setUpModel(timestamp, position){
     var modelViewMat = mat4.create () ;
-    mat4.lookAt(modelViewMat, [-1.2,-1,0.8], [0,0,0], [0,0,1]);
+    mat4.lookAt(modelViewMat, [-3,0,0.8], [-1,0,0.8], [0,0,1]);
+    mat4.translate(modelViewMat,modelViewMat, vec3.fromValues(position[0], position[1], position[2]));
     mat4.rotate(modelViewMat, modelViewMat, timestamp * 0.001, [0.0,0.0,1.0]);
 
     gl.uniformMatrix4fv ( ctx.uModelViewMat , false , modelViewMat ) ;
@@ -96,7 +109,7 @@ function setUpProjectionMatrix(){
     //0.785 = 45°
     //2 -> 160° ca.
     //Exercise 2
-    mat4.perspective(projectionMat, 2, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
+    mat4.perspective(projectionMat, 1.5, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
 
     //Exercise 3
 
@@ -109,9 +122,8 @@ function setUpProjectionMatrix(){
 }
 
 function drawAnimated(timestamp){
-    setUpModel(timestamp);
     // calculate time since last call
-    draw();
+    draw(timestamp);
     // request the next frame
     window.requestAnimationFrame ( drawAnimated ) ;
 }
@@ -120,13 +132,15 @@ function drawAnimated(timestamp){
 /**
  * Draw the scene.
  */
-function draw() {
-    "use strict";
+function draw(timestamp = 0) {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl . clear (gl.COLOR_BUFFER_BIT)
-    let filledCube = new FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0.4,0.4,0.4,1.0]]);
-    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId);
+    setUpModel(timestamp, [0,1.0,0]);
+    filledCube.drawWithTexture(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+
+    setUpModel(timestamp, [0,-1.0,0]);
+    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
 }
 
 // Key Handling
