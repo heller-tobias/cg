@@ -80,7 +80,6 @@ function setUpBuffers(){
 
 function setUpFilledCube() {
     filledCube =  FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0.4,0.4,0.4,1.0]], "lena512.png",);
-
 }
 
 /**
@@ -96,7 +95,7 @@ function setUpBackfaceCulling() {
 
 function setUpModel(timestamp, position){
     var modelViewMat = mat4.create () ;
-    mat4.lookAt(modelViewMat, [-3,0,0.8], [-1,0,0.8], [0,0,1]);
+    mat4.lookAt(modelViewMat, [-3,0,1.5], [-1,0,0.8], [0,0,1]);
     mat4.translate(modelViewMat,modelViewMat, vec3.fromValues(position[0], position[1], position[2]));
     mat4.rotate(modelViewMat, modelViewMat, timestamp * 0.001, [0.0,0.0,1.0]);
 
