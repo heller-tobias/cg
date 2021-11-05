@@ -45,6 +45,7 @@ function initGL() {
     "use strict";
     ctx.shaderProgram = loadAndCompileShaders(gl, 'VertexShader.glsl', 'FragmentShader.glsl');
     setUpBackfaceCulling();
+    setUpZBuffer();
     setUpAttributesAndUniforms();
     setUpBuffers();
     setUpFilledCube();
@@ -75,7 +76,7 @@ function setUpAttributesAndUniforms(){
  */
 function setUpBuffers(){
     "use strict";
-    setUpProjectionMatrix();
+    setupProjectionMatrix();
 }
 
 function setUpFilledCube() {
@@ -89,35 +90,51 @@ function setUpBackfaceCulling() {
     gl.frontFace (gl.CCW ) ; // defines how the front face is drawn -> CCW -> Counter Clock Wise!
     gl.cullFace (gl.BACK ) ; // defines which face should be culled -> Die rückwärtigen Flächen weglassen
     gl.enable (gl.CULL_FACE ) ; // enables culling
-
-    //gl.enable (gl.DEPTH_TEST) ;
 }
 
-function setUpModel(timestamp, position){
-    var modelViewMat = mat4.create () ;
-    mat4.lookAt(modelViewMat, [-3,0,1.5], [-1,0,0.8], [0,0,1]);
-    mat4.translate(modelViewMat,modelViewMat, vec3.fromValues(position[0], position[1], position[2]));
-    mat4.rotate(modelViewMat, modelViewMat, timestamp * 0.001, [0.0,0.0,1.0]);
-
-    gl.uniformMatrix4fv ( ctx.uModelViewMat , false , modelViewMat ) ;
+/**
+ * SetUp ZBuffer Algorithm.
+ */
+function setUpZBuffer(){
+    gl.enable (gl.DEPTH_TEST) ;
 }
 
-function setUpProjectionMatrix(){
+function setUpModel(timestamp, position, viewMat){
+    mat4.translate(viewMat, viewMat, vec3.fromValues(position[0], position[1], position[2]));
+    mat4.rotate(viewMat, viewMat, timestamp * 0.001, [0.0,0.0,1.0]);
+
+    gl.uniformMatrix4fv ( ctx.uModelViewMat , false , viewMat ) ;
+}
+
+function setupProjectionMatrix(){
     // Set up the world coordinates
     var projectionMat = mat4.create () ;
-    //0.785 = 45°
-    //2 -> 160° ca.
-    //Exercise 2
-    mat4.perspective(projectionMat, 1.5, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 10)
-
-    //Exercise 3
-
-    //mat4.frustum(projectionMat, -1, 1, -1, 1, 0.1, 10);
+    mat4.perspective(projectionMat, 1.8, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.01, 10)
     gl.uniformMatrix4fv ( ctx.uProjectionMatId , false , projectionMat ) ;
+}
 
-/*
-    mat3.fromScaling ( projectionMat , [2.0/ gl.drawingBufferWidth , 2.0/ gl.drawingBufferHeight ]) ;
-    gl.uniformMatrix4fv ( ctx.uProjectionMatId , false , projectionMat ) ;*/
+function setupModelViewFront(timestamp, position){
+    var viewMat = mat4.create () ;
+    mat4.lookAt(viewMat, [0,-2,0.0], [0.0,0,0.0], [0,0,1]);
+    setUpModel(timestamp, position, viewMat);
+}
+
+function setupModelViewTop(timestamp, position){
+    var viewMat = mat4.create () ;
+    mat4.lookAt(viewMat, [0,0,2], [0,0,0], [0,1,0]);
+    setUpModel(timestamp, position, viewMat);
+}
+
+function setupModelViewLeft(timestamp, position){
+    var viewMat = mat4.create () ;
+    mat4.lookAt(viewMat, [-3,0,1], [0,0,0], [0,0,1]);
+    setUpModel(timestamp, position, viewMat);
+}
+
+function setupModelViewRight(timestamp, position){
+    var viewMat = mat4.create () ;
+    mat4.lookAt(viewMat, [3,0,1], [0,0,0], [0,0,1]);
+    setUpModel(timestamp, position, viewMat);
 }
 
 function drawAnimated(timestamp){
@@ -127,6 +144,27 @@ function drawAnimated(timestamp){
     window.requestAnimationFrame ( drawAnimated ) ;
 }
 
+function drawCubes(timestamp = 0, modelView){
+    modelView(timestamp, [1.0,0.0,0]);
+    filledCube.drawWithTexture(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+
+    modelView(timestamp, [-1.0,0.0,0]);
+    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+}
+
+function drawCubesFrom4Perspectives(timestamp){
+    gl.viewport(0, 0, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubes(timestamp, setupModelViewLeft);
+
+    gl.viewport(gl.canvas.width / 2, 0, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubes(timestamp, setupModelViewRight);
+
+    gl.viewport(0, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubes(timestamp, setupModelViewTop);
+
+    gl.viewport(gl.canvas.width / 2, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubes(timestamp, setupModelViewFront);
+}
 
 /**
  * Draw the scene.
@@ -134,12 +172,8 @@ function drawAnimated(timestamp){
 function draw(timestamp = 0) {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
-    gl . clear (gl.COLOR_BUFFER_BIT)
-    setUpModel(timestamp, [0,1.0,0]);
-    filledCube.drawWithTexture(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
-
-    setUpModel(timestamp, [0,-1.0,0]);
-    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    drawCubesFrom4Perspectives(timestamp);
 }
 
 // Key Handling
