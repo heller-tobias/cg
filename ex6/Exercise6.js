@@ -12,6 +12,8 @@ var gl;
 
 var filledCube;
 
+var filledSphere;
+
 // we keep all local parameters for the program in a single object
 var ctx = {
     shaderProgram: -1,
@@ -23,7 +25,10 @@ var ctx = {
     uModelViewMat: -1,
     uNormalMat: -1,
     uSampler: -1,
-    uEnableTexture: -1
+    uEnableTexture: -1,
+    uEnableLightning: -1,
+    uLightPosition: -1,
+    uLightColor: -1,
     // add local parameters for attributes and uniforms here
 };
 
@@ -51,6 +56,7 @@ function initGL() {
     setUpAttributesAndUniforms();
     setUpBuffers();
     setUpFilledCube();
+    setUpFilledSphere();
     // set the clear color here
     gl.clearColor(0.0,0.0,0.0,1);
 }
@@ -72,7 +78,11 @@ function setUpAttributesAndUniforms(){
     ctx.uModelViewMat = gl.getUniformLocation(ctx.shaderProgram, "uModelViewMatrix");
     ctx.uNormalMat = gl.getUniformLocation(ctx.shaderProgram, "uNormalMatrix");
     ctx.uSampler = gl.getUniformLocation(ctx.shaderProgram, "uSampler");
+
     ctx.uEnableTexture = gl.getUniformLocation(ctx.shaderProgram, "uEnableTexture");
+    ctx.uEnableLightning = gl.getUniformLocation(ctx.shaderProgram, "uEnableLightning");
+    ctx.uLightPosition = gl.getUniformLocation(ctx.shaderProgram, "uLightPosition");
+    ctx.uLightColor = gl.getUniformLocation(ctx.shaderProgram, "uLightColor");
 }
 
 /**
@@ -85,6 +95,10 @@ function setUpBuffers(){
 
 function setUpFilledCube() {
     filledCube =  FilledCube(gl, [[0,0,1,1.0],[1,0,0,1.0],[0,1,0,1.0],[1,1,0,1.0],[1,0,1,1.0],[0.4,0.4,0.4,1.0]], "lena512.png",);
+}
+
+function setUpFilledSphere() {
+    filledSphere =  SolidSphere(gl, 20, 20, [0.4,0.4,1.0]);
 }
 
 /**
@@ -154,24 +168,35 @@ function drawAnimated(timestamp){
 
 function drawCubes(timestamp = 0, modelView){
     modelView(timestamp, [1.0,0.0,0]);
-    filledCube.drawWithTexture(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+    filledCube.drawWithTexture(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId, ctx.aVertexNormalId);
 
     modelView(timestamp, [-1.0,0.0,0]);
-    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.uSampler, ctx.aTextureCoordId);
+    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.aVertexNormalId);
 }
 
+function drawCubeAndSphere(timestamp = 0, modelView){
+    modelView(timestamp, [1.0,0.0,0]);
+    filledCube.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId, ctx.uEnableTexture, ctx.aVertexNormalId);
+
+    modelView(timestamp, [-1.0,0.0,0]);
+    filledSphere.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId,ctx.aVertexNormalId);
+}
+
+
 function drawCubesFrom4Perspectives(timestamp){
-    gl.viewport(0, 0, gl.canvas.width / 2, gl.canvas.height / 2);
     drawCubes(timestamp, setupModelViewLeft);
+}
 
-    gl.viewport(gl.canvas.width / 2, 0, gl.canvas.width / 2, gl.canvas.height / 2);
-    drawCubes(timestamp, setupModelViewRight);
+function enableLight(){
+    gl.uniform1i(ctx.uEnableLightning, 1);
+    gl.uniform3fv(ctx.uLightPosition, [0,0,3]);
+    gl.uniform3fv(ctx.uLightColor, [1,1,0.8]);
+}
 
-    gl.viewport(0, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
-    drawCubes(timestamp, setupModelViewTop);
-
-    gl.viewport(gl.canvas.width / 2, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
-    drawCubes(timestamp, setupModelViewFront);
+function disableLight(){
+    gl.uniform1i(ctx.uEnableLightning, 0);
+    gl.uniform3fv(ctx.uLightPosition, [0,0,3]);
+    gl.uniform3fv(ctx.uLightColor, [1,1,0.8]);
 }
 
 /**
@@ -181,7 +206,8 @@ function draw(timestamp = 0) {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    drawCubesFrom4Perspectives(timestamp);
+    disableLight();
+    drawCubeAndSphere(timestamp, setupModelViewFront);
 }
 
 // Key Handling

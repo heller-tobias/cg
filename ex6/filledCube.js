@@ -105,14 +105,17 @@ function FilledCube ( gl , colors, textureUrl = "" ) {
 
     function defineTextureCoord(gl){
         var textureCoord = [
+            //Side 0
             1.0, 0.0,
             0.0, 0.0,
             0.0, 1.0,
             1.0, 1.0,
+            //Side 1
             1.0, 0.0,
             0.0, 0.0,
             0.0, 1.0,
             1.0, 1.0,
+            //Side 2
             1.0, 0.0,
             0.0, 0.0,
             0.0, 1.0,
@@ -147,6 +150,7 @@ function FilledCube ( gl , colors, textureUrl = "" ) {
         // set parameters for the texture
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
         // Was passiert beim skalieren?
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
@@ -173,17 +177,64 @@ function FilledCube ( gl , colors, textureUrl = "" ) {
         return textureObj;
     }
 
+    function defineNormals(gl) {
+        var normals = [
+            //Side 0
+            0.0,-1.0,0.0,
+            0.0,-1.0,0.0,
+            0.0,-1.0,0.0,
+            0.0,-1.0,0.0,
+            //Side 1
+            1.0,0.0,0.0,
+            1.0,0.0,0.0,
+            1.0,0.0,0.0,
+            1.0,0.0,0.0,
+            //Side 2
+            0.0,0.0,1.0,
+            0.0,0.0,1.0,
+            0.0,0.0,1.0,
+            0.0,0.0,1.0,
+            //Side 3
+            0.0,1.0,0.0,
+            0.0,1.0,0.0,
+            0.0,1.0,0.0,
+            0.0,1.0,0.0,
+            //Side 4
+            0.0,0.0,-1.0,
+            0.0,0.0,-1.0,
+            0.0,0.0,-1.0,
+            0.0,0.0,-1.0,
+            //Side 5
+            -1.0,0.0,0.0,
+            -1.0,0.0,0.0,
+            -1.0,0.0,0.0,
+            -1.0,0.0,0.0,
+        ]
+
+        var buffer = gl.createBuffer () ;
+        gl.bindBuffer ( gl.ARRAY_BUFFER , buffer ) ;
+        gl.bufferData ( gl.ARRAY_BUFFER , new Float32Array (normals) , gl.STATIC_DRAW ) ;
+        return buffer;
+    }
+
+
+
     return {
         bufferVertices : defineVertices ( gl ) ,
+        bufferNormals: defineNormals(gl),
         bufferTriangles : defineTriangles ( gl ) ,
         bufferColors: defineColors(gl),
         textureCoord: defineTextureCoord(gl),
         textureObj: defineTexture(gl),
 
-        draw : function ( gl , aVertexPositionId , aVertexColorId, uEnableTexture) {
+        draw : function ( gl , aVertexPositionId , aVertexColorId, uEnableTexture, aVertexNormalId) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertices);
             gl.vertexAttribPointer(aVertexPositionId, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(aVertexPositionId);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferNormals);
+            gl.vertexAttribPointer(aVertexNormalId, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(aVertexNormalId);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferColors);
             gl.vertexAttribPointer(aVertexColorId, 4, gl.FLOAT, false, 0, 0);
@@ -193,7 +244,7 @@ function FilledCube ( gl , colors, textureUrl = "" ) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufferTriangles);
             gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
         },
-        drawWithTexture(gl, aVertexPositionId , aVertexColorId, uEnableTexture, aSampler, aTextureCoord){
+        drawWithTexture(gl, aVertexPositionId , aVertexColorId, uEnableTexture, aSampler, aTextureCoord, aVertexNormalId){
             gl.uniform1i(uEnableTexture, 1);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.textureCoord);
@@ -207,6 +258,10 @@ function FilledCube ( gl , colors, textureUrl = "" ) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferVertices);
             gl.vertexAttribPointer(aVertexPositionId, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(aVertexPositionId);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferNormals);
+            gl.vertexAttribPointer(aVertexNormalId, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(aVertexNormalId);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferColors);
             gl.vertexAttribPointer(aVertexColorId, 4, gl.FLOAT, false, 0, 0);
