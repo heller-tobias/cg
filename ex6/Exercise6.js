@@ -14,6 +14,13 @@ var filledCube;
 
 var filledSphere;
 
+var light = {
+    enabled: true,
+    position: [2,3,2],
+    color: [1,1,0.9],
+    bulb: -1,
+};
+
 // we keep all local parameters for the program in a single object
 var ctx = {
     shaderProgram: -1,
@@ -26,7 +33,7 @@ var ctx = {
     uNormalMat: -1,
     uSampler: -1,
     uEnableTexture: -1,
-    uEnableLightning: -1,
+    uEnableLighting: -1,
     uLightPosition: -1,
     uLightColor: -1,
     // add local parameters for attributes and uniforms here
@@ -57,8 +64,9 @@ function initGL() {
     setUpBuffers();
     setUpFilledCube();
     setUpFilledSphere();
+    setUpLight();
     // set the clear color here
-    gl.clearColor(0.0,0.0,0.0,1);
+    gl.clearColor(0.1,0.1,0.1,1);
 }
 
 /**
@@ -80,7 +88,7 @@ function setUpAttributesAndUniforms(){
     ctx.uSampler = gl.getUniformLocation(ctx.shaderProgram, "uSampler");
 
     ctx.uEnableTexture = gl.getUniformLocation(ctx.shaderProgram, "uEnableTexture");
-    ctx.uEnableLightning = gl.getUniformLocation(ctx.shaderProgram, "uEnableLightning");
+    ctx.uEnableLighting = gl.getUniformLocation(ctx.shaderProgram, "uEnableLighting");
     ctx.uLightPosition = gl.getUniformLocation(ctx.shaderProgram, "uLightPosition");
     ctx.uLightColor = gl.getUniformLocation(ctx.shaderProgram, "uLightColor");
 }
@@ -125,7 +133,7 @@ function setUpModel(timestamp, position, viewMat){
 
     var normalMatrix = mat3.create()
     mat3.normalFromMat4 (normalMatrix, viewMat) ;
-    gl . uniformMatrix3fv (ctx.uNormalMatrixId , false , normalMatrix ) ;
+    gl . uniformMatrix3fv (ctx.uNormalMat , false , normalMatrix ) ;
 }
 
 function setupProjectionMatrix(){
@@ -136,19 +144,19 @@ function setupProjectionMatrix(){
 }
 
 function setupModelViewFront(timestamp, position){
-    var viewMat = mat4.create () ;
+    var viewMat = mat4.create() ;
     mat4.lookAt(viewMat, [0,-2,0.0], [0.0,0,0.0], [0,0,1]);
     setUpModel(timestamp, position, viewMat);
 }
 
 function setupModelViewTop(timestamp, position){
-    var viewMat = mat4.create () ;
+    var viewMat = mat4.create() ;
     mat4.lookAt(viewMat, [0,0,2], [0,0,0], [0,1,0]);
     setUpModel(timestamp, position, viewMat);
 }
 
 function setupModelViewLeft(timestamp, position){
-    var viewMat = mat4.create () ;
+    var viewMat = mat4.create() ;
     mat4.lookAt(viewMat, [-3,0,1], [0,0,0], [0,0,1]);
     setUpModel(timestamp, position, viewMat);
 }
@@ -161,7 +169,7 @@ function setupModelViewRight(timestamp, position){
 
 function drawAnimated(timestamp){
     // calculate time since last call
-    draw(timestamp);
+    drawCubeAndSphereFrom4Perspectives(timestamp);
     // request the next frame
     window.requestAnimationFrame ( drawAnimated ) ;
 }
@@ -180,23 +188,46 @@ function drawCubeAndSphere(timestamp = 0, modelView){
 
     modelView(timestamp, [-1.0,0.0,0]);
     filledSphere.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId,ctx.aVertexNormalId);
+
+    if(light.enabled){
+        setLight(false);
+        //modelView(timestamp, light.position);
+        //light.bulb.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId,ctx.aVertexNormalId);
+        setLight(true);
+    }
+
 }
 
+function drawCubeAndSphereFrom4Perspectives(timestamp){
+    gl.viewport(0, 0, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubeAndSphere(timestamp, setupModelViewLeft);
 
-function drawCubesFrom4Perspectives(timestamp){
-    drawCubes(timestamp, setupModelViewLeft);
+    gl.viewport(gl.canvas.width / 2, 0, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubeAndSphere(timestamp, setupModelViewRight);
+
+    gl.viewport(0, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubeAndSphere(timestamp, setupModelViewTop);
+
+    gl.viewport(gl.canvas.width / 2, gl.canvas.height / 2, gl.canvas.width / 2, gl.canvas.height / 2);
+    drawCubeAndSphere(timestamp, setupModelViewFront);
 }
 
-function enableLight(){
-    gl.uniform1i(ctx.uEnableLightning, 1);
-    gl.uniform3fv(ctx.uLightPosition, [0,0,3]);
-    gl.uniform3fv(ctx.uLightColor, [1,1,0.8]);
+function setUpLight(){
+    if(light.enabled){
+        gl.uniform3fv(ctx.uLightPosition, light.position);
+        gl.uniform3fv(ctx.uLightColor, light.color);
+        light.bulb = SolidSphere(gl, 30, 30, light.color)
+    }
+    setLight(light.enabled);
 }
 
-function disableLight(){
-    gl.uniform1i(ctx.uEnableLightning, 0);
-    gl.uniform3fv(ctx.uLightPosition, [0,0,3]);
-    gl.uniform3fv(ctx.uLightColor, [1,1,0.8]);
+function setLight(enable){
+    if(enable){
+        gl.uniform1i(ctx.uEnableLighting, 1);
+    }
+    else{
+        gl.uniform1i(ctx.uEnableLighting, 0);
+    }
 }
 
 /**
@@ -206,8 +237,7 @@ function draw(timestamp = 0) {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    disableLight();
-    drawCubeAndSphere(timestamp, setupModelViewFront);
+    drawCubeAndSphere(timestamp, setupModelViewTop);
 }
 
 // Key Handling
