@@ -16,8 +16,9 @@ var filledSphere;
 
 var light = {
     enabled: true,
-    position: [2,3,2],
-    color: [1,1,0.9],
+    //Relativ zur Kamera!!!
+    position: [15,15,3],
+    color: [1,1,1.0],
     bulb: -1,
 };
 
@@ -66,7 +67,7 @@ function initGL() {
     setUpFilledSphere();
     setUpLight();
     // set the clear color here
-    gl.clearColor(0.1,0.1,0.1,1);
+    gl.clearColor(0.0,0.0,0.0,1);
 }
 
 /**
@@ -106,7 +107,7 @@ function setUpFilledCube() {
 }
 
 function setUpFilledSphere() {
-    filledSphere =  SolidSphere(gl, 20, 20, [0.4,0.4,1.0]);
+    filledSphere =  SolidSphere(gl, 50, 50, [0.4,0.4,1.0]);
 }
 
 /**
@@ -169,7 +170,8 @@ function setupModelViewRight(timestamp, position){
 
 function drawAnimated(timestamp){
     // calculate time since last call
-    drawCubeAndSphereFrom4Perspectives(timestamp);
+    //drawCubeAndSphereFrom4Perspectives(timestamp);
+    drawCubeAndSphere(timestamp, setupModelViewFront)
     // request the next frame
     window.requestAnimationFrame ( drawAnimated ) ;
 }
@@ -191,7 +193,7 @@ function drawCubeAndSphere(timestamp = 0, modelView){
 
     if(light.enabled){
         setLight(false);
-        //modelView(timestamp, light.position);
+        modelView(timestamp, light.position);
         //light.bulb.draw(gl, ctx.aVertexPositionId, ctx.aVertexColorId,ctx.aVertexNormalId);
         setLight(true);
     }
@@ -237,7 +239,7 @@ function draw(timestamp = 0) {
     console.log("Drawing");
     //Immer loeschen vor dem Zeichnen!
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    drawCubeAndSphere(timestamp, setupModelViewTop);
+    //drawCubeAndSphere(timestamp, setupModelViewTop);
 }
 
 // Key Handling
