@@ -103,20 +103,20 @@ function setUpSecondRectangle(){
 
     //Koordinaten von -1 bis +1
     //Ohne Füllung
-    /*var vertices = [
+    var vertices = [
         -0.5,-0.5,
         -0.5, 0.5,
-        0.8,0.5,
-        0.8,-0.5
-    ]*/
+        0.2,0.5,
+        0.2,-0.5
+    ]
 
     //Mit Fuellung
-    var vertices = [
+    /*var vertices = [
         -0.8,-0.5,
         -0.8, 0.5,
         -0.2,-0.5,
         -0.2,0.5
-    ]
+    ]*/
 
     //Binden des Buffers
     gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject2.buffer);
@@ -173,8 +173,8 @@ function draw() {
 
     //Gibt an wie es gezeichnet wird
     //Ungefuellt
-    //gl.drawArrays(gl.LINE_LOOP, 0, 4);
+    gl.drawArrays(gl.LINE_LOOP, 0, 4);
 
     //Gefuellt
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }

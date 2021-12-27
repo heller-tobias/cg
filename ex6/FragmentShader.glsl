@@ -50,9 +50,10 @@ void main() {
             // Fix direction is opposite, we need from vertex to eye not eye to vertex
             vec3 eyeDir = - normalize(vVertexPositionEye3);
             //shouldn't be negative
-            float cosPhi = clamp(dot(reflectionDir, eyeDir), 0.0, 1.0);
+            float cosPhi = clamp(y, 0.0, 1.0);
             float specularFactor = shininess;
-            specularColor = (specularMaterialColor + uLightColor) * pow(cosPhi, specularFactor);
+            specularColor = (specularMaterialColor * uLightColor) * pow(cosPhi, specularFactor);
+            //multiplikativ
         }
         vec3 color = ambientColor + diffuseColor + specularColor;
         gl_FragColor = vec4(color, 1.0);

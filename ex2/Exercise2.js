@@ -74,9 +74,11 @@ function setUpAttributesAndUniforms(){
 
     ctx.uColorId = gl.getUniformLocation(ctx.shaderProgram, "u_color");
     ctx.uSample2DId = gl.getUniformLocation(ctx.shaderProgram, "uSampler");
+    ctx.uUseColor = gl.getUniformLocation(ctx.shaderProgram, "uUseColor");
+
 }
 
-function setUpFirstRectangle(){
+function setUpStandardBuffer(){
     // add code here to setup the buffers for drawing an object
     //Float 32 Array!
 
@@ -128,6 +130,31 @@ function setUpFirstRectangle(){
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoord), gl.STATIC_DRAW);
 }
 
+function setUpInterleavedBuffer(){
+    // add code here to setup the buffers for drawing an object
+    // Always vertex, color, texture
+    var bufferValues = [
+        -0.5,-0.5,
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 0.0,
+        -0.5, 0.8,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0,
+        0.8,-0.5,
+        0.0, 0.0, 1.0, 1.0,
+        1.0, 0.0,
+        0.8,0.8,
+        0.5, 0.5, 0.0, 1.0,
+        1.0, 1.0
+    ]
+
+    rectangleObject.buffer = gl.createBuffer();
+    //Binden des Buffers
+    // Übergeben der Vertexe an den GL Buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bufferValues), gl.STATIC_DRAW);
+}
+
 /**
  * Initialize a texture from an image
  * @param image the loaded image
@@ -171,7 +198,34 @@ function loadTexture(imageUrl) {
  */
 function setUpBuffers(){
     "use strict";
-    setUpFirstRectangle();
+    setUpInterleavedBuffer();
+}
+
+function bindStandardBuffers(){
+    //Binden des Buffers
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
+    //Verbindet den aktuellen Buffer mit der Vertexvariable, 2 gibt die Anzahl Komponenten an und float den Datentypen
+    gl.vertexAttribPointer(ctx.aVertexPositionId, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(ctx.aVertexPositionId);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
+    gl.enableVertexAttribArray(ctx.aVertexColorId);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.textureBuffer);
+    gl.enableVertexAttribArray(ctx.aVertexTextureId);
+}
+
+function bindInterleavedBuffer(){
+    //Binden des Buffers
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
+    //Verbindet den aktuellen Buffer mit der Vertexvariable, 2 gibt die Anzahl Komponenten an und float den Datentypen
+    // Stride -> 32 / 8 * (2+4+2) = 32
+    gl.vertexAttribPointer(ctx.aVertexPositionId, 2, gl.FLOAT, false, 32, 0);
+    gl.enableVertexAttribArray(ctx.aVertexPositionId);
+    gl.vertexAttribPointer(ctx.aVertexColorId, 4, gl.FLOAT, false, 32, 8);
+    gl.enableVertexAttribArray(ctx.aVertexColorId);
+    gl.vertexAttribPointer(ctx.aVertexTextureId, 2, gl.FLOAT, false, 32, 24);
+    gl.enableVertexAttribArray(ctx.aVertexTextureId);
 }
 
 /**
@@ -184,24 +238,13 @@ function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     // add drawing routines here
 
-    //Binden des Buffers
-    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.buffer);
-    //Verbindet den aktuellen Buffer mit der Vertexvariable, 2 gibt die Anzahl Komponenten an und float den Datentypen
-    gl.vertexAttribPointer(ctx.aVertexPositionId, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aVertexPositionId);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.colorBuffer);
-    gl.vertexAttribPointer(ctx.aVertexColorId, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aVertexColorId);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, rectangleObject.textureBuffer);
-    gl.vertexAttribPointer(ctx.aVertexTextureId, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(ctx.aVertexTextureId);
+    bindInterleavedBuffer();
 
     // Setzen der Texture0
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, lennaTxt.textureObj);
     gl.uniform1i(ctx.uSample2DId, 0);
+    gl.uniform1i(ctx.uUseColor, 0);
 
     //gl.uniform4fv(ctx.uColorId, [0.0, 1.0, 0.0, 1.0]);
 

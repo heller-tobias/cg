@@ -9,10 +9,16 @@ uniform vec4 u_color;
 // For rendering a texture
 uniform sampler2D uSampler;
 
+// Use color bit
+uniform bool uUseColor;
+
 //Berechnung der Pixelfarbe
 void main() {
      // For setting from varying
-     //gl_FragColor = vColor;
-     // Gibt an welche Textur verwendet wird!
-     gl_FragColor = texture2D(uSampler, vTextureCoord);
+     if(uUseColor){
+          gl_FragColor = vColor;
+     }else{
+          // Gibt an welche Textur verwendet wird!
+          gl_FragColor = texture2D(uSampler, vTextureCoord);
+     }
 }
