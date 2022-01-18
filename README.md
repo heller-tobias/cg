@@ -1,2 +1,2 @@
 # cg
-Exercises in WEBGL for the Computer Graphics Course Exercises
+Exercises in WEBGL for the Computer Graphics Course
